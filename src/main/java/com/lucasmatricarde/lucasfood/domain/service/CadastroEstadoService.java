@@ -21,7 +21,7 @@ public class CadastroEstadoService {
 
     public void delete(Long id){
         try{
-            estadoRepository.delete(id);
+            estadoRepository.deleteById(id);
         }catch (DataIntegrityViolationException e){
             throw new EntidadeEmUsoException(String.format("O estado com o id %d está sendo utilizada", id));
         }catch (EmptyResultDataAccessException e){

@@ -1,13 +1,10 @@
 package com.lucasmatricarde.lucasfood.domain.repository;
 
+
 import com.lucasmatricarde.lucasfood.domain.model.Cidade;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
-public interface CidadeRepository {
-
-    List<Cidade> findAll ();
-    Cidade findById (Long id);
-    void delete (Long id);
-    Cidade save (Cidade cidade);
+@Repository
+public interface CidadeRepository extends JpaRepository<Cidade, Long> {
 }

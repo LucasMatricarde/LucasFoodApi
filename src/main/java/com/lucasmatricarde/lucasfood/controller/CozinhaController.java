@@ -7,12 +7,14 @@ import com.lucasmatricarde.lucasfood.domain.repository.CozinhaRepository;
 import com.lucasmatricarde.lucasfood.domain.service.CadastroCozinhaService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/cozinhas")
@@ -30,23 +32,14 @@ public class CozinhaController {
     }
 
     @GetMapping(value = "/findById/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Cozinha> findById(@PathVariable("id") Long id) {
-        Cozinha cozinha = cozinhaRepository.findById(id);
+    public ResponseEntity<Optional<Cozinha>> findById(@PathVariable("id") Long id) {
+        Optional<Cozinha> cozinha = cozinhaRepository.findById(id);
 
-        if (cozinha == null) {
+        if (cozinha.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
         return ResponseEntity.ok(cozinha);
-
-//        return ResponseEntity.status(HttpStatus.OK).body(cozinha);
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.add(HttpHeaders.LOCATION, "http://localhost:8080/cozinhas");
-//
-//        return ResponseEntity
-//                .status(HttpStatus.FOUND)
-//                .headers(headers)
-//                .body(cozinha);
     }
 
     @PostMapping("/save")
@@ -56,29 +49,31 @@ public class CozinhaController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Cozinha> update(@PathVariable Long id, @RequestBody Cozinha cozinha){
-        Cozinha cozinhaAtual = cozinhaRepository.findById(id);
+    public ResponseEntity<Optional<Cozinha>> update(@PathVariable Long id, @RequestBody Cozinha cozinha){
+        Optional<Cozinha> cozinhaAtual = cozinhaRepository.findById(id);
 
-        if (cozinhaAtual == null){
+        if (cozinhaAtual.isEmpty()){
             return ResponseEntity.notFound().build();
         }
 
-        BeanUtils.copyProperties(cozinha, cozinhaAtual, "id");
-        cadastroCozinhaService.save(cozinhaAtual);
+        BeanUtils.copyProperties(cozinha, cozinhaAtual.get(), "id");
+        cadastroCozinhaService.save(cozinhaAtual.get());
 
         return ResponseEntity.ok(cozinhaAtual);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Cozinha> remove(@PathVariable Long id){
+    public void remove(@PathVariable Long id){
         try {
-            cadastroCozinhaService.delete(id);
+            if (!cozinhaRepository.existsById(id)) {
+                throw new EntidadeNaoEncontradaException(
+                        String.format("Não existe um cadastro de cozinha com código %d", id));
+            }
+            cozinhaRepository.deleteById(id);
 
-            return ResponseEntity.noContent().build();
-        }catch (EntidadeEmUsoException ex){
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }catch (EntidadeNaoEncontradaException e){
-            return ResponseEntity.notFound().build();
+        } catch (DataIntegrityViolationException e) {
+            throw new EntidadeEmUsoException(
+                    String.format("Cozinha de código %d não pode ser removida, pois está em uso", id));
         }
     }
 }
