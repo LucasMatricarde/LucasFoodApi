@@ -8,6 +8,7 @@ public interface CozinhaRepository {
 
     List<Cozinha> findAll();
     Cozinha findById(Long id);
+    List<Cozinha> findByName(String name);
     void delete(Long id);
     Cozinha save(Cozinha cozinha);
 }
