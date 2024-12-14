@@ -2,7 +2,6 @@ package com.lucasmatricarde.lucasfood.domain.repository;
 
 import com.lucasmatricarde.lucasfood.domain.model.Restaurante;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -14,7 +13,7 @@ public interface RestauranteRepository extends JpaRepository<Restaurante, Long> 
 
     List<Restaurante> findByTaxaFreteBetween(BigDecimal taxaFreteAfter, BigDecimal taxaFreteBefore);
 
-    @Query("from Restaurante where nome like %:nome% and cozinha.id = :idCozinha")
+//  @Query("from Restaurante where nome like %:nome% and cozinha.id = :idCozinha")
     List<Restaurante> consultarPorNome(String nome, Long idCozinha);
 
     //List<Restaurante> findByNomeContainingAndCozinhaId(String nome, Long idCozinha);
