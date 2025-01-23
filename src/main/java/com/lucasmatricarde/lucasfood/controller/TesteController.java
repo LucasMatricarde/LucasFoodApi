@@ -4,6 +4,8 @@ import com.lucasmatricarde.lucasfood.domain.model.Cozinha;
 import com.lucasmatricarde.lucasfood.domain.model.Restaurante;
 import com.lucasmatricarde.lucasfood.domain.repository.CozinhaRepository;
 import com.lucasmatricarde.lucasfood.domain.repository.RestauranteRepository;
+import com.lucasmatricarde.lucasfood.infrastructure.respository.spec.RestauranteComFreteGratisSpec;
+import com.lucasmatricarde.lucasfood.infrastructure.respository.spec.RestauranteNomeSemelhanteSpec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -63,8 +65,13 @@ public class TesteController {
         return restauranteRepository.countByCozinhaId(idCozinha);
     }
 
-    @GetMapping("/restaurantes/por-nome-e-frete")
-    public List<Restaurante> consultarPorNome(String nome, BigDecimal taxaInicial, BigDecimal taxaFinal){
-        return restauranteRepository.find(nome, taxaInicial, taxaFinal);
+    @GetMapping("/restaurantes/com-frete-gratis")
+    public List<Restaurante> restauranteComFreteGratis(String nome){
+        var comFreteGratis = new RestauranteComFreteGratisSpec();
+        var comNomeSemelhante = new RestauranteNomeSemelhanteSpec(nome);
+
+
+
+        return restauranteRepository.findAll(comFreteGratis.and(comNomeSemelhante));
     }
 }
